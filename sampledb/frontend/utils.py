@@ -220,22 +220,14 @@ _jinja_filters['are_conditions_fulfilled'] = filter_are_conditions_fulfilled
 
 
 def get_template(template_folder, schema):
-    path = os.getcwd() + '/sampledb/frontend/templates/' + template_folder
-
-#    if "choices" in schema:
-#        schema["type"] = 'select'
+    path = os.path.join(os.path.dirname(__file__), 'templates', template_folder)
 
     file = schema["type"] + ".html"
 
-    try:
-        styled_file = schema["style"] + "_" + file
-
-        if (os.path.exists(path + styled_file)):
-            return (template_folder + styled_file)
-        else:
-            return (template_folder + file)
-    except:
-        return (template_folder + file)
+    if schema.get('style') and os.path.exists(path + schema['style'] + "_" + file):
+        return template_folder + schema['style'] + "_" + file
+    else:
+        return template_folder + file
 
 
 def get_form_template(schema):
