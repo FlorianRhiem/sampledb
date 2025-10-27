@@ -20,7 +20,7 @@ using a configuration variable. If a provider supports neither PKCE with
 method ``S256``, nor ``nonce``, using it is not recommended.
 
 RP-Initiated Logout will be used if the provider indicates support. If
-configured, the sessions lifetime will be bound to the that of the ID Token
+configured, the session's lifetime will be bound to the that of the ID Token
 and Back-Channel Logouts will end the session. In that case, Refresh Tokens
 are required and used to transparently refresh the ID Token after its
 expiration. Front-Channel Logout is not currently implemented.
