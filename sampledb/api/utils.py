@@ -103,19 +103,3 @@ def _on_json_loading_failed_replacement(_e: Exception) -> typing.NoReturn:
         obj={'message': 'Failed to decode JSON object'},
         status=400
     ))
-
-
-def prepare_object_permissions(permissions) -> typing.Dict[str, typing.Any]:
-    return {
-        "users": {
-            user_id: permission.name.lower() for user_id, permission in permissions["users"].items()
-        },
-        "basic_groups": {
-            group_id: permission.name.lower() for group_id, permission in permissions["basic_groups"].items()
-        },
-        "projects": {
-            project_id: permission.name.lower() for project_id, permission in permissions["projects"].items()
-        },
-        "authenticated": permissions["authenticated"].name.lower(),
-        "anonymous": permissions["anonymous"].name.lower(),
-    }

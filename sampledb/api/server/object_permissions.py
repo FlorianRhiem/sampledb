@@ -3,20 +3,37 @@
 RESTful API for SampleDB
 """
 
+import typing
 import flask
 
 from .authentication import object_permissions_required, multi_auth
-from ..utils import Resource, ResponseData, prepare_object_permissions
+from ..utils import Resource, ResponseData
 from ...logic import users, groups, projects, errors, object_permissions, objects
 from ...models import Permissions
 
 __author__ = 'Florian Rhiem <f.rhiem@fz-juelich.de>'
 
 
+def all_object_permissions_dict_to_json(permissions: object_permissions.AllObjectPermissionsDict) -> typing.Dict[str, typing.Any]:
+    return {
+        "users": {
+            user_id: permission.name.lower() for user_id, permission in permissions["users"].items()
+        },
+        "basic_groups": {
+            group_id: permission.name.lower() for group_id, permission in permissions["basic_groups"].items()
+        },
+        "projects": {
+            project_id: permission.name.lower() for project_id, permission in permissions["projects"].items()
+        },
+        "authenticated": permissions["authenticated"].name.lower(),
+        "anonymous": permissions["anonymous"].name.lower(),
+    }
+
+
 class ObjectPermissions(Resource):
     @object_permissions_required(Permissions.READ)
     def get(self, object_id: int) -> ResponseData:
-        return prepare_object_permissions(
+        return all_object_permissions_dict_to_json(
             object_permissions.get_all_object_permissions(object_id=object_id)
         ), 200
 
@@ -138,14 +155,14 @@ class ObjectPermissions(Resource):
                 object_id=object_id,
                 permissions=permissions,
             )
-        return prepare_object_permissions(
+        return all_object_permissions_dict_to_json(
             object_permissions.get_all_object_permissions(object_id=object_id)
         ), 200
 
 
 class CopyObjectsPermissions(Resource):
     @multi_auth.login_required
-    def post(self):
+    def post(self) -> ResponseData:
         user_id = flask.g.user.id
         user = users.get_user(user_id=user_id)
         if user.is_readonly:

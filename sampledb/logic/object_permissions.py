@@ -97,29 +97,42 @@ def set_project_object_permissions(object_id: int, project_id: int, permissions:
     object_permissions.set_permissions_for_project(resource_id=object_id, project_id=project_id, permissions=permissions)
 
 
-def get_all_object_permissions(object_id: int) -> typing.Dict[str, typing.Dict[int, Permissions] | Permissions | bool]:
-    permissions = {}
-    permissions["users"] = get_object_permissions_for_users(
+class AllObjectPermissionsDict(typing.TypedDict):
+    users: typing.Dict[int, Permissions]
+    basic_groups: typing.Dict[int, Permissions]
+    projects: typing.Dict[int, Permissions]
+    authenticated: Permissions
+    anonymous: Permissions
+
+
+def get_all_object_permissions(object_id: int) -> AllObjectPermissionsDict:
+    user_permissions = get_object_permissions_for_users(
         object_id=object_id,
         include_instrument_responsible_users=False,
         include_groups=False,
         include_projects=False,
         include_admin_permissions=False,
     )
-    permissions["basic_groups"] = get_object_permissions_for_groups(
+    basic_group_permissions = get_object_permissions_for_groups(
         object_id=object_id,
         include_projects=False,
     )
-    permissions["projects"] = get_object_permissions_for_projects(
+    project_permissions = get_object_permissions_for_projects(
         object_id=object_id,
     )
-    permissions["authenticated"] = get_object_permissions_for_all_users(
+    all_user_permissions = get_object_permissions_for_all_users(
         object_id=object_id
     )
-    permissions["anonymous"] = get_object_permissions_for_anonymous_users(
+    anonymous_user_permissions = get_object_permissions_for_anonymous_users(
         object_id=object_id
     )
-    return permissions
+    return {
+        "users": user_permissions,
+        "basic_groups": basic_group_permissions,
+        "projects": project_permissions,
+        "authenticated": all_user_permissions,
+        "anonymous": anonymous_user_permissions
+    }
 
 
 def _get_object_responsible_user_ids(object_id: int) -> typing.List[int]:
